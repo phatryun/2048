@@ -20,14 +20,14 @@ class Utile:
 
 		return parcour
 
-	def calculeScoreH(self, grilleTemp, heur):
+	def calculeScoreH(self, grilleTemp, heur,coup):
 		score = -1
 		if heur == 1:
 			score = self.calculScoreNaif(grilleTemp)
 		elif heur == 2:
-			score = self.calculScoreH3(grilleTemp.tab)
+			score = self.calculGradient(grilleTemp.tab,coup)
 		elif heur == 3:
-			score = self.calculeScoreH2(grilleTemp.tab)
+			score = self.calculeScorePosition(grilleTemp.tab)
 		elif heur == 4:
 			score = self.calculScoreH2_1(grilleTemp)
 
@@ -41,7 +41,7 @@ class Utile:
 
 
 	"""Position des valeurs des cases"""
-	def calculeScoreH2(self, tab,r=0.25):
+	def calculeScorePosition(self, tab,r=0.25):
 		tabHeur = array([[13,12,5,4]
 												,[14,11,6,3]
 												,[15,10,7,2]
@@ -66,18 +66,35 @@ class Utile:
 		return res
 
 	""" Gradient"""
-	def calculScoreH3(self,tab):
-		tabHeur = array([[-3,-2,-1,0]
-			,[-2,-1,0,1]
-			,[-1,0,1,2]
-			,[0,1,2,3]])
-		res = 0.0
-		for i in range(0,4):
-			for j in range(0,4):
-				if tab[i][j] != "      ":
-					res += int(tab[i][j])*int(tabHeur[i][j])
+	def calculGradient(self,tab,coup):
+		tabHeur = list()
+		tabHeur.append(array([[-3,-2,-1,0]
+							,[-2,-1,0,1]
+							,[-1,0,1,2]
+							,[0,1,2,3]]))
+		tabHeur.append(array([[0,-1,-2,-3]
+							,[1,0,-1,-2]
+							,[2,1,0,-1]
+							,[3,2,1,0]]))
+		tabHeur.append(array([[3,2,1,0]
+							,[2,1,0,-1]
+							,[1,0,-1,-2]
+							,[0,-1,-2,-3]]))
+		tabHeur.append(array([[0,1,2,3]
+							,[-1,0,1,2]
+							,[-2,-1,0,1]
+							,[-3,-2,-1,0]]))
+		Grad_max = 0
+		for tab_grad in tabHeur:
+			res = 0.0
+			for i in range(0,4):
+				for j in range(0,4):
+					if tab[i][j] != "      ":
+						res += int(tab[i][j])*int(tab_grad[i][j])
 
-		return res
+			Grad_max = max(Grad_max, res)
+
+		return Grad_max
 
 	def calculSmoothness(self, grilleTemp):
 		score_smooth = 0
@@ -105,7 +122,7 @@ class Utile:
 	def calculScoreH2_1(self, grilleTemp):
 		res = 0
 		#First calcul the monotonity (H2)
-		res += self.calculeScoreH2(grilleTemp.tab)
+		res += self.calculeScorePosition(grilleTemp.tab)
 		
 		#res += self.calculGradient(grilleTemp.tab)
 		#res += self.eval_monotone(grilleTemp)
@@ -152,7 +169,7 @@ class IA:
 			CoupNOK = newBoard.jouerCoup(str(coup))
 			if not(CoupNOK): #Si le coup est validé
 				newBoard.ajoutAlea(1)
-				score = self.utile.calculeScoreH(newBoard,heur)
+				score = self.utile.calculeScoreH(newBoard,heur,coup)
 				if depth != 0:
 					my_m,my_s = self.nextMoveRecur(newBoard,depth-1,depthMax,heur)
 					score += my_s*pow(base,depthMax-depth+1)
@@ -218,7 +235,7 @@ class IA:
 
 
 
-	def coup_IA(self,depth=4,heur=3):
+	def coup_IA(self,depth=4,heur=2):
 		
 		print self.grille.AfficherGrille()
 		
@@ -298,7 +315,7 @@ class IA:
 
 
 ia = IA()
-ia.test_IA(2)
+ia.test_IA(25)
 
 
 
