@@ -1,0 +1,141 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[scale=0.8]{geometry}
+\usepackage[francais]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+
+\begin{document}
+
+\begin{center}
+HUREL Arnaud\\
+Elèves-Ingénieurs en master Informatique : Système Intelligent      
+\vspace{3cm}
+
+
+
+{\textbf{\Huge{\\Métaheuristique et jeu\\}}}
+\vspace{1cm}
+
+
+{\textbf{\Large{Projet de construction d'une IA du jeu 2048\\}}}
+\vspace{4cm}
+
+\textsc{{\large{A l'attention de Monsieur CAZENAVE\\}}}
+
+
+\vspace{4cm}
+À Paris le \today
+\end{center}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction sur le 2048}
+Le jeu 2048 a été créer en 2014 par Gabriele Cirulli à l'age de 19 ans, le but de ce jeu est de faire glisser des tuiles sur un grille de 4x4 cases afin d'obtenir une tuile égale à 2048. En effet, les tuilles ont pour valeur des puissance de 2. A chaque tour, le jeu fait apparaitre de manière aléatoire soit une tuile 2, soit une tuile 4 (90\% pour la tuile 2 et 10\% pour la tuile 4). Pour jouer, l'utilisateur a le choix entre quatres coup : Nord, Sud, Est et Ouest. Ceux-ci auront, respectivement, un effet de comprésion des tuiles vers le haut, le bas, la droite et la gauche.
+
+Le jeu ainsi que les IAs ont été développer en python, vous pouvez y acceder en toute liberté sur mon Github à l'adresse suivante : https://github.com/phatryun/2048
+
+
+\section{Algorithmes utilisés}
+Une fois le jeu créé, nous avons mis en place différents algortithme en vu de créer un intelligence artificiel capable de résoudre se casse tête. Nous avons alors regarder sur internet afin de se renseigner sur les différents algorithme utilisé
+
+Pour des raisons techniques, lors de nos test nous avons choisi de faire tourner nos algortimes que avec une profondeur de 4.
+
+\subsection{Algorithme Naif}
+Cet algorithme consiste à déterminer le meilleur coup parmis tous ceux possible. Il peut être considéré comme naif, car il vas tout simplement effectuer tous les coups de manière exhaustif sans logique particulière. Dans notre fichier source il corresdond aux fonctions \textit{nextMove} et \textit{nextMoveRecur}.\\
+Voici son derroulement : 
+\begin{itemize}
+\item Tant que la profondeur de recherche n'est pas égale à celle voulut, on va effectuer chaque coup possible (Nord, Sud, Est, Ouest)
+\item On va, ensuite, ajouter de manière aléatoire la nouvelle tuile pour ensuite calculer le score heuristique de la grille obtenue.
+\item Puis on va étudier ces fils qui lui retourneront leur meilleur score calculé par l'heuristique choisit. 
+\item De ces dernier, on retiendra le coup pour le quel le score de l'heuristique à été le plus élévè.
+\item Enfin on va ajouter à son propore score celui de son meilleur fils mais de façon pondéré. 
+\end{itemize}
+
+\subsection{Expectimax}
+
+Cet algorithme est répartie en deux étapes : la première consiste à rechercher le meilleur coup possible calculé en maximisant le score obtenu grâce à une heuristique et ensuite de minimiser l'impacte de l'ajout aléatoire des nouvelles tuiles.
+Dans notre code nous le retrouverons à travers la fonction \textit{player\_max} qui aura pour objectid de maximiser le choix du coup et la fonction \textit{player\_expect} qui 
+va minimiser les placements de la nouvelle tuile.\\
+Voici plus en détail leurs déroulement :
+
+\begin{itemize}
+\item Premièrement, notre condition d'arret sera quand la profondeur de recherche sera égale à 0. Alors ont calculera notre score grâce à notre heuristique.
+\item La première étape consiste à tester tous les coup possible du moment qu'ils sont autorisé.
+\item Si ils le sont, alors on va passer à la deuxième partis de l'algo qui va minimiser le positionnement aléatoire de nos nouvelles tuiles
+\item Pour cela on va repérer tous les emplacements vide de notre grille et pour chaque emplacement on va ajouter une tuile pour repartir dans la première étape (calcul du score max).
+\item De ces score obtenue on va effectuer un calcul de score moyen pour obtenir une estimation de score en fonction de toutes les positions de nouvelles tuile possible
+
+\end{itemize}
+
+
+\section{Heuristiques utilisé}
+lol
+\subsection{Utilisation du score}
+lol
+\subsection{Gradient}
+lol
+\subsection{Ordre des valeurs des cases}
+lol
+
+\subsection{Conjugaison d'heuristique : Ordre, fusions possibles, cases libres}
+lol
+\newpage
+\section{Résultats obtenus}
+
+
+\begin{tabular}{|l|c|c|c|c|c|} 
+   \hline
+    Algorithme & \multicolumn{5}{c|}{ Naif } \\
+    \hline
+    Heuristique & Score & Gradiant & Gradient ++ & ordre & ordre ++ \\
+    \hline
+    0 & 13 & 3 & 0 & 4 & 0\\
+    \hline
+    1024 & 12 & 5 & 0 & 1 & 0\\
+    \hline
+    2024 & 0 & 13 & 0 & 13 & 0 \\
+    \hline
+    4096 & 0 & 4 & 0 & 7 & 0 \\
+    \hline
+    8192 & 0 & 0 & 0 & 0 & 0 \\
+    \hline
+    temps moyen & 0 & 239 & 0 & 209 & 0 \\
+    \hline
+\end{tabular}
+
+
+
+\vspace{2cm}
+
+
+\begin{tabular}{|l|c|c|c|c|c|} 
+   \hline
+    Algorithme & \multicolumn{5}{c|}{ Expectimax }\\
+    \hline
+    Heuristique & Score & Gradiant & Gradient ++ & ordre & ordre ++ \\
+    \hline
+    0 & 0 & 0 & 0 & 0 & 0\\
+    \hline
+    1024 & 0 & 0 & 0 & 0 & 0\\
+    \hline
+    2024 & 0 & 0 & 0 & 0 & 0 \\
+    \hline
+    4096 & 0 & 0 & 0 & 0 & 0 \\
+    \hline
+    8192 & 0 & 0 & 0 & 0 & 0 \\
+    \hline
+    temps moyen & 0 & 0 & 0 & 0 & 0 \\
+    \hline
+\end{tabular}
+
+
+\end{document}
