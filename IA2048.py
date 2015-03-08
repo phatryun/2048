@@ -20,12 +20,12 @@ class Utile:
 
 		return parcour
 
-	def calculeScoreH(self, grilleTemp, heur,coup):
+	def calculeScoreH(self, grilleTemp, heur):
 		score = -1
 		if heur == 1:
 			score = self.calculScoreNaif(grilleTemp)
 		elif heur == 2:
-			score = self.calculGradient(grilleTemp.tab,coup)
+			score = self.calculGradient(grilleTemp.tab)
 		elif heur == 3:
 			score = self.calculeScorePosition(grilleTemp.tab)
 		elif heur == 4:
@@ -66,7 +66,7 @@ class Utile:
 		return res
 
 	""" Gradient"""
-	def calculGradient(self,tab,coup):
+	def calculGradient(self,tab):
 		tabHeur = list()
 		tabHeur.append(array([[-3,-2,-1,0]
 							,[-2,-1,0,1]
@@ -103,7 +103,7 @@ class Utile:
 		for x in range(0,4):
 			for y in range(0,4):
 				s = 1000000
-				val_max = max(val_max, grilleTemp.val(x,y))
+				#val_max = max(val_max, grilleTemp.val(x,y))
 				if grilleTemp.val(x,y) > 0:
 					i += 1
 					if x > 0: 
@@ -116,24 +116,22 @@ class Utile:
 	                	s = min(s, abs(grilleTemp.val(x,y) - grilleTemp.val(x,y+1)))
 	                score_smooth -= s
 
-		return score_smooth/val_max
+		return score_smooth#/val_max
 
 	
 	def calculScoreH2_1(self, grilleTemp):
 		res = 0
 		#First calcul the monotonity (H2)
-		res += self.calculeScorePosition(grilleTemp.tab)
+		#res += self.calculeScorePosition(grilleTemp.tab)
+		res += self.calculGradient(grilleTemp.tab)
 		
-		#res += self.calculGradient(grilleTemp.tab)
-		#res += self.eval_monotone(grilleTemp)
-
 		#Then the smoothness
 		#res += self.calculSmoothness(grilleTemp)
 		
 		#finaly free title
 		nbFreeTitle = len(grilleTemp.positionsAvaibleNewTitle())
-		res += nbFreeTitle/16
-		#res += -(16-nbFreeTitle)**2
+		#res += nbFreeTitle/16
+		res += -(16-nbFreeTitle)**2
 
 		return res
 
@@ -169,7 +167,7 @@ class IA:
 			CoupNOK = newBoard.jouerCoup(str(coup))
 			if not(CoupNOK): #Si le coup est validé
 				newBoard.ajoutAlea(1)
-				score = self.utile.calculeScoreH(newBoard,heur,coup)
+				score = self.utile.calculeScoreH(newBoard,heur)
 				if depth != 0:
 					my_m,my_s = self.nextMoveRecur(newBoard,depth-1,depthMax,heur)
 					score += my_s*pow(base,depthMax-depth+1)
@@ -185,10 +183,6 @@ class IA:
 	def player_max(self, grilleTemp, depth,heur):
 		if depth == 0:
 			return "A",self.utile.calculeScoreH(grilleTemp,heur)
-			"""if grilleTemp.asMove():
-													return "A",self.utile.calculeScoreH(grilleTemp,heur)
-												else:
-													return "A",0"""
 
 		bestScore = -100000000
 		bestCoup = "B"
@@ -235,12 +229,12 @@ class IA:
 
 
 
-	def coup_IA(self,depth=4,heur=2):
+	def coup_IA(self,depth=4,heur=4):
 		
 		print self.grille.AfficherGrille()
 		
-		meilleurCoup,score = self.nextMove(self.grille,depth,heur)
-		#meilleurCoup,score = self.player_max(self.grille,depth,heur)
+		#meilleurCoup,score = self.nextMove(self.grille,depth,heur)
+		meilleurCoup,score = self.player_max(self.grille,depth,heur)
 
 		print "Le meilleur coup calculer est : " + meilleurCoup + " avec un score de : "+ str(score)
 		#raw_input() #permet de faire une pause
