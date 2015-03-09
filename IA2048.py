@@ -10,17 +10,8 @@ class Utile:
 	Fonction utile pour notre IA
 	"""
 
-	def maxListeRacine(self, liste):
-		max = 0
-		parcour = ""
-		for elt in liste:
-			if elt[1] > max:
-				max = elt[1]
-				parcour = elt[0]
-
-		return parcour
-
 	def calculeScoreH(self, grilleTemp, heur):
+		"""Fonction simplifaint le choix de l'heuristique"""
 		score = -1
 		if heur == 1:
 			score = self.calculScoreNaif(grilleTemp)
@@ -35,13 +26,13 @@ class Utile:
 		return score
 
 	def calculScoreNaif(self, grilleTemp):
-		"""if grilleTemp.score == 0:
-			print grilleTemp.AfficherGrille"""
+		"""Heuristique avec le score de la grille """
 		return grilleTemp.score
 
 
-	"""Position des valeurs des cases"""
+	
 	def calculeScorePosition(self, tab,r=0.25):
+		"""heuristique position des valeurs des cases ==> Suite parfaite"""
 		tabHeur = array([[13,12,5,4]
 												,[14,11,6,3]
 												,[15,10,7,2]
@@ -65,8 +56,9 @@ class Utile:
 
 		return res
 
-	""" Gradient"""
+	
 	def calculGradient(self,tab):
+		"""Heuristique du Gradient"""
 		tabHeur = list()
 		tabHeur.append(array([[-3,-2,-1,0]
 							,[-2,-1,0,1]
@@ -96,42 +88,22 @@ class Utile:
 
 		return Grad_max
 
-	def calculSmoothness(self, grilleTemp):
-		score_smooth = 0
-		i = 0
-		val_max = 0
-		for x in range(0,4):
-			for y in range(0,4):
-				s = 1000000
-				#val_max = max(val_max, grilleTemp.val(x,y))
-				if grilleTemp.val(x,y) > 0:
-					i += 1
-					if x > 0: 
-						s = min(s, abs(grilleTemp.val(x,y) - grilleTemp.val(x-1,y)))
-	                if y > 0:
-	                	s = min(s, abs(grilleTemp.val(x,y) - grilleTemp.val(x,y-1)))
-	                if x < 3:
-	                	s = min(s, abs(grilleTemp.val(x,y) - grilleTemp.val(x+1,y)))
-	                if y < 3:
-	                	s = min(s, abs(grilleTemp.val(x,y) - grilleTemp.val(x,y+1)))
-	                score_smooth -= s
-
-		return score_smooth#/val_max
+	
 
 	
 	def calculScoreH2_1(self, grilleTemp):
+		"""Heuristique améliorer avec la maximisation des tuiles vide"""
 		res = 0
 		#First calcul the monotonity (H2)
-		#res += self.calculeScorePosition(grilleTemp.tab)
-		res += self.calculGradient(grilleTemp.tab)
+		res += self.calculeScorePosition(grilleTemp.tab) #Position
+		#res += self.calculGradient(grilleTemp.tab) #Gradient
 		
-		#Then the smoothness
-		#res += self.calculSmoothness(grilleTemp)
+		
 		
 		#finaly free title
 		nbFreeTitle = len(grilleTemp.positionsAvaibleNewTitle())
-		#res += nbFreeTitle/16
-		res += -(16-nbFreeTitle)**2
+		res += nbFreeTitle/16 #Position
+		#res += -(16-nbFreeTitle)**2 #Gradient
 
 		return res
 
@@ -146,12 +118,12 @@ class IA:
 	"""
 
 	def __init__(self):
-		#self.arbre = Arbre()
+		"""Initialisation de notre IA"""
 		self.grille = Grille()
 		self.utile = Utile()
 		
 
-	""" NAIF """
+	"""Algorithme NAIF """
 	def nextMove(self,board,depth,heur):
 		m,s = self.nextMoveRecur(board,depth,depth,heur)
 		return m,s
@@ -179,7 +151,7 @@ class IA:
 		return bestCoup, bestScore
 
 
-	""" Expectimax """
+	"""Algorithme Expectimax """
 	def player_max(self, grilleTemp, depth,heur):
 		if depth == 0:
 			return "A",self.utile.calculeScoreH(grilleTemp,heur)
@@ -230,11 +202,11 @@ class IA:
 
 
 	def coup_IA(self,depth=4,heur=4):
-		
+		"""Fonction permettant de calculer le meilleur coup de L'IA"""
 		print self.grille.AfficherGrille()
 		
-		#meilleurCoup,score = self.nextMove(self.grille,depth,heur)
-		meilleurCoup,score = self.player_max(self.grille,depth,heur)
+		#meilleurCoup,score = self.nextMove(self.grille,depth,heur) #NAIF
+		meilleurCoup,score = self.player_max(self.grille,depth,heur) #Expectimax
 
 		print "Le meilleur coup calculer est : " + meilleurCoup + " avec un score de : "+ str(score)
 		#raw_input() #permet de faire une pause
@@ -243,11 +215,10 @@ class IA:
 		
 
 	def play_IA(self,essai):
-
-		#Test"
+		"""Permet de faire tourner le jeur"""
+		
 		
 		i = 1
-		#while i < 1000:
 		t_debut = time.clock()
 		while self.grille.asMove():
 			print "$$$$$$$ essai :",essai+1," $$$$$$$$$$$$      coup ",i,"    $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
@@ -288,6 +259,7 @@ class IA:
 		
 
 	def test_IA(self,nb):
+		"""Fonction de test de l'IA """
 		tab_res = array([0,0,0,0,0])
 		temp_moyen = 0
 		i = 0

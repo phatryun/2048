@@ -15,7 +15,7 @@
 
 \begin{center}
 HUREL Arnaud\\
-Elèves-Ingénieurs en master Informatique : Système Intelligent      
+Elève-Ingénieur en master  Informatique : Système Intelligent      
 \vspace{3cm}
 
 
@@ -73,24 +73,28 @@ Voici plus en détail leurs déroulement :
 \item Si ils le sont, alors on va passer à la deuxième partis de l'algo qui va minimiser le positionnement aléatoire de nos nouvelles tuiles
 \item Pour cela on va repérer tous les emplacements vide de notre grille et pour chaque emplacement on va ajouter une tuile pour repartir dans la première étape (calcul du score max).
 \item De ces score obtenue on va effectuer un calcul de score moyen pour obtenir une estimation de score en fonction de toutes les positions de nouvelles tuile possible
-
 \end{itemize}
 
 
 \section{Heuristiques utilisé}
-lol
-\subsection{Utilisation du score}
-lol
-\subsection{Gradient}
-lol
-\subsection{Ordre des valeurs des cases}
-lol
 
-\subsection{Conjugaison d'heuristique : Ordre, fusions possibles, cases libres}
-lol
+\subsection{Utilisation du score}
+La première heuristique qu'y nous est venue à l'esprit est celle maximisant le score de la grille. En effet, celui ci est automatiquement calculé à chaque fusion de tuile. Il fut donc facile de mettre en place cette heuristique qui va préférer le coup rapportant le plus de point. Malheureusement cette heuristique n'est pas tres concluante (comme le prouve les résultats obtenues ci-dessous). En effet, celle-ci va préférer les fusions de tuiles direct au défaut des fusions qui pourraient se produire au coup d'après et qui rapporteraient plus de point.
+
+\subsection{Gradient}
+L'heuristique du gradient permet de favoriser les grilles qui ont pour valeur maximale des tuille de dans un coin de la grille. Ainsi pour chaques grilles, on va calculer sont score en fonction des 4 gradients et on retournera le meilleur score. Le score est le résultat d'une somme des multiplication entre les valeurs des tuiles et les poids contenu dans la matrice des gradients.\\
+Cette heurisitque est facile à mettre en place mais elle est très couteuse car en effet, pour chaque appel de cette fonction on va calculer 4 score. Néanmois on obtient de bon résultats
+
+\subsection{Ordre des valeurs des cases}
+Cet heuristique permet de preferer le choix de construction d'une suitre parfaite. En effet, avec un système de pondération des valeurs de la grille, nous allons définir une suite parfaite qui pour notre cas commancera en bas à droite de notre grille.
+
+\subsection{Conjugaison d'heuristiques avec ajout de la maximisation des cases libres}
+De ces deux dernières heuristiques, nous avons également rajouté un impacte sur le nombre de case vide. En effet, nous allons dans ce cas maximiser le nombre de case vide restant après le coup dans le but de faire durer le plus longtemps possible la partie.
+
 \newpage
 \section{Résultats obtenus}
 
+Les résultats obtenus ont été réalisés sur une machine Debian 64bit doté de 4 processeurs Intel Core i5-2520M CPU \@ 2.50GHz et de 8Go de RAM. Pour des raisons technique, nous avons réalisé les test avec comme profondeur maximum de 4. Dans les tableaux ci-desous nous observons la fréquence d'atteinte de palier sur 25 tests.
 
 \begin{tabular}{|l|c|c|c|c|c|} 
    \hline
@@ -123,17 +127,17 @@ lol
     \hline
     Heuristique & Score & Gradiant & Gradient ++ & ordre & ordre ++ \\
     \hline
-    0 & 0 & 0 & 0 & 0 & 0\\
+    0 & 25 & 10 & 0 & 2 & 0\\
     \hline
-    1024 & 0 & 0 & 0 & 0 & 0\\
+    1024 & 0 & 13 & 0 & 3 & 0\\
     \hline
-    2024 & 0 & 0 & 0 & 0 & 0 \\
+    2024 & 0 & 2 & 0 & 18 & 0 \\
     \hline
-    4096 & 0 & 0 & 0 & 0 & 0 \\
+    4096 & 0 & 0 & 0 & 2 & 0 \\
     \hline
     8192 & 0 & 0 & 0 & 0 & 0 \\
     \hline
-    temps moyen & 0 & 0 & 0 & 0 & 0 \\
+    temps moyen & 32 & 183 & 0 & 94 & 0 \\
     \hline
 \end{tabular}
 

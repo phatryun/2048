@@ -7,6 +7,7 @@ from scipy import *
 class Grille:
 	
 	def __init__(self):
+		"""fonction d'initialisation de la grille """
 		self.tab = array([["      ","      ","      ","      "]
 			,["      ","      ","      ","      "]
 			,["      ","      ","      ","      "]
@@ -14,11 +15,13 @@ class Grille:
 		self.score = 0
 
 	def initGrille(self):
+		"""Permet l'ajout aléatoire des deux premieres tuiles"""
 		self.ajoutAlea(0)
 		self.ajoutAlea(0)
 		
 
 	def AfficherGrille(self):
+		"""Fonction qui permet l'affichage de la grille"""
 		res = "\n*******************\n"
 		res += "score : " + str(self.score) + " \n"
 		for i in range(0,4):
@@ -30,12 +33,13 @@ class Grille:
 		return res
 
 	def ajoutNotAlea(self,position):
+		"""Ajoute une nouvelle tuile en fonction des position donnée"""
 		val = random.choice(["    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    4 "])
 		self.tab[position[0]][position[1]] = val
 		return val
 
 	def ajoutAlea(self,mode):
-		#print "yo"
+		"""Ajoute aléatoirement une nouvelle tuile"""
 		boolean = True
 		if mode == 0:
 			val = "    2 "
@@ -52,6 +56,7 @@ class Grille:
 			
 
 	def format(self, nb):
+		"""Permet de transformer la valeur obtenue en chaine de caractère optimisé pour l'affichage"""
 		res = " "
 		size = len(str(nb))
 		if size == 1:
@@ -67,6 +72,7 @@ class Grille:
 
 
 	def compresserList(self, liste):
+		"""Fonction qui gère la compression d'une liste """
 		boolPasCompre = True
 		i = 0
 		while i < 4:
@@ -95,6 +101,7 @@ class Grille:
 	
 
 	def preCompresser(self,liste,boolReverse):
+		"""Permet de définir le sens de compression """
 		isListeNOk = True
 		listTemp = liste.copy()
 		
@@ -110,34 +117,31 @@ class Grille:
 		return isListeNOk,liste
 
 	def jouerCoup(self, coup):
+		"""Fonction qui permet de lancer la compression en fonction du coup donnée"""
 		isMoveNOk = True
 		if coup == "W":
-			#print "Ouest"
 			for i in range(0,4):
 				isListNOk,self.tab[i] = self.preCompresser(self.tab[i], False)
 				isMoveNOk *= isListNOk
 		elif coup == "E":
-			#print "Est"
 			for i in range(0,4):
 				isListNOk,self.tab[i] = self.preCompresser(self.tab[i], True)
 				isMoveNOk *= isListNOk
 		elif coup == "N":
-			#print "Nord"
 			for i in range(0,4):
 				isListNOk,self.tab[:,i] = self.preCompresser(self.tab[:,i], False) 
 				isMoveNOk *= isListNOk
 		elif coup == "S":
-			#print "Sud"
 			for i in range(0,4):
 				isListNOk,self.tab[:,i] = self.preCompresser(self.tab[:,i], True)
 				isMoveNOk *= isListNOk
-			#for i in range(0,4):
 		else:
 			print "Coup inconu"
 
 		return isMoveNOk
 
 	def InverseListe(self, liste):
+		"""Fonction qui inverse l'ordre des valeurs d'une liste donnée en paramètre"""
 		i,j = liste[0],liste[1]
 		liste[0] = liste[3]
 		liste[1] = liste[2]
@@ -147,6 +151,7 @@ class Grille:
 		return liste
 
 	def jouer(self):
+		"""Main de notre jeu"""
 		print "\n\nBonjour et bienvenue dans ce merveilleux programme du 2048 ! "
 		self.initGrille()
 		print self.AfficherGrille()
@@ -163,6 +168,7 @@ class Grille:
 		print "Au revoir"
 
 	def a1024(self):
+		"""Fonction permettant de savoir si la grille à un tuile 1024"""
 		boolean = False
 		for i in range(0,4):
 			for j in range(0,4):
@@ -172,6 +178,7 @@ class Grille:
 		return boolean
 
 	def a2048(self):
+		"""Fonction permettant de savoir si la grille à un tuile 2048"""
 		boolean = False
 		for i in range(0,4):
 			for j in range(0,4):
@@ -182,6 +189,7 @@ class Grille:
 
 
 	def a4096(self):
+		"""Fonction permettant de savoir si la grille à un tuile 4096"""
 		boolean = False
 		for i in range(0,4):
 			for j in range(0,4):
@@ -191,6 +199,7 @@ class Grille:
 		return boolean
 
 	def a8192(self):
+		"""Fonction permettant de savoir si la grille à un tuile 8192"""
 		boolean = False
 		for i in range(0,4):
 			for j in range(0,4):
@@ -200,6 +209,7 @@ class Grille:
 		return boolean
 
 	def gameOver(self):
+		"""Fonction qui permet de savoir si le jeu est terminé : le joueur ne peux plus jouer de coup"""
 		boolean = True
 		grilleTemp = Grille()
 		if self.a2048():
@@ -209,6 +219,7 @@ class Grille:
 
 
 	def positionsAvaibleNewTitle(self):
+		"""Permet de donner la liste des case vide de la grille"""
 		list_res = list()
 		for i in range(0,4):
 			for j in range(0,4):
@@ -218,6 +229,7 @@ class Grille:
 		return list_res
 
 	def asMove(self):
+		"""Permet de donner les coup autorisaer """
 		boolean = True
 		grilleTemp = Grille()
 		listeCoup = ["N","S","E","W"]
@@ -234,22 +246,5 @@ class Grille:
 
 """grille = Grille()
 grille.initGrille()
-print grille.AfficherGrille()
-L = grille.positionsAvaibleNewTitle()
-print L
-print L[0]
-grille.ajoutNotAlea(L[0])
-print grille.AfficherGrille()"""
-"""grille.jouer()"""
+grille.jouer()"""
 
-"""tab2 = array([["    4  ","    5  ","   12 ","   13 "]
-			,["    3 ","    6 ","  11  ","   14 "]
-			,["    2 ","    7 ","  10  ","   15 "]
-			,["    1 ","    8 ","   9  ","   16 "]])
-
-for m in range(0,4):
-	for e in range(0,4):
-		print int(tab2[m][e])*0.25**int(tab2[m][e])"""
-
-"""grille.tab = tab2
-print grille.AfficherGrille()"""
