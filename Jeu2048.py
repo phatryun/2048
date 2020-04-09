@@ -1,62 +1,35 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3.4
 # -*-coding:Utf-8 -*
-
+import numpy as np
 import random
-from scipy import *
 
-class Grille:
-	
-	def __init__(self):
-		"""fonction d'initialisation de la grille """
-		self.tab = array([["      ","      ","      ","      "]
-			,["      ","      ","      ","      "]
-			,["      ","      ","      ","      "]
-			,["      ","      ","      ","      "]])
+class Game2048:
+	ACTION_Noth = 0
+	ACTION_Right = 1
+	ACTION_South = 2
+	ACTION_West = 3
+
+	ACTIONS = [ACTION_Noth, ACTION_Right, ACTION_South, ACTION_West]
+
+	ACTION_NAMES = ["N", "E", "S", "W"]
+
+	num_actions = len(ACTIONS)
+	def __init__(self, alea=True):
+		"""initalisation of the board """
+		self.board = np.zeros((4, 4)).astype(int)
 		self.score = 0
+	
+		if alea :
+			self.initGame()
 
-	def initGrille(self):
-		"""Permet l'ajout aléatoire des deux premieres tuiles"""
-		self.ajoutAlea(0)
-		self.ajoutAlea(0)
+	def initGame(self):
+		"""Random add of new tile"""
+		self.AddRandomTile(0)
+		self.AddRandomTile(0)
 		
 
-	def AfficherGrille(self):
-		"""Fonction qui permet l'affichage de la grille"""
-		res = "\n*******************\n"
-		res += "score : " + str(self.score) + " \n"
-		for i in range(0,4):
-			for j in range(0,4):
-				res = res + " | " + str(self.tab[i][j])
-			res += " | \n" 
-
-		res += "\n*******************\n"
-		return res
-
-	def ajoutNotAlea(self,position):
-		"""Ajoute une nouvelle tuile en fonction des position donnée"""
-		val = random.choice(["    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    4 "])
-		self.tab[position[0]][position[1]] = val
-		return val
-
-	def ajoutAlea(self,mode):
-		"""Ajoute aléatoirement une nouvelle tuile"""
-		boolean = True
-		if mode == 0:
-			val = "    2 "
-		else:# 10% -> 4 et 90% -> 2
-			val = random.choice(["    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    2 ","    4 "])
-
-		while boolean:
-			#print "oh shit"
-			i = random.randint(0,4)
-			j = random.randint(0,4)
-			if self.tab[i][j] == "      ":
-				self.tab[i][j] = val
-				boolean = False
-			
-
-	def format(self, nb):
-		"""Permet de transformer la valeur obtenue en chaine de caractère optimisé pour l'affichage"""
+	def plotTile(self, nb):
+		"""Transform value of a tile to optimise printing """
 		res = " "
 		size = len(str(nb))
 		if size == 1:
@@ -70,181 +43,173 @@ class Grille:
 
 		return res
 
-
-	def compresserList(self, liste):
-		"""Fonction qui gère la compression d'une liste """
-		boolPasCompre = True
-		i = 0
-		while i < 4:
-			
-			if liste[i] == "      ":
-				i += 1
-			else:
-				if i != 0 :
-					if liste[i-1] == "      ":
-						liste[i-1] = liste[i]
-						liste[i] = "      "
-						i = i - 1 
-					elif liste[i-1] == liste[i] and boolPasCompre:
-						res = int(liste[i]) + int(liste[i-1])
-						self.score += res
-						liste[i-1] = self.format(res)
-						liste[i] = "      "
-						i += 1
-						boolPasCompre = False
-						
-					else:
-						i += 1
-				else:
-					i += 1
-		return liste
-	
-
-	def preCompresser(self,liste,boolReverse):
-		"""Permet de définir le sens de compression """
-		isListeNOk = True
-		listTemp = liste.copy()
+	def plotBoard(self):
+		"""Return a string with printed board"""
+		res = "\n*******************\n"
+		res += "score : " + str(self.score) + " \n"
 		
-		if boolReverse :
-			self.InverseListe(self.compresserList(self.InverseListe(liste)))
-		else :
-			self.compresserList(liste)
+		res += " |\n".join([" | ".join([self.plotTile(e) for e in line]) for line in self.board])
+		res += " |\n"
 
-		for elt in (listTemp==liste) :
-			isListeNOk *= elt
-			
+		res += "\n*******************\n"
+		return res
 
-		return isListeNOk,liste
-
-	def jouerCoup(self, coup):
-		"""Fonction qui permet de lancer la compression en fonction du coup donnée"""
-		isMoveNOk = True
-		if coup == "W":
-			for i in range(0,4):
-				isListNOk,self.tab[i] = self.preCompresser(self.tab[i], False)
-				isMoveNOk *= isListNOk
-		elif coup == "E":
-			for i in range(0,4):
-				isListNOk,self.tab[i] = self.preCompresser(self.tab[i], True)
-				isMoveNOk *= isListNOk
-		elif coup == "N":
-			for i in range(0,4):
-				isListNOk,self.tab[:,i] = self.preCompresser(self.tab[:,i], False) 
-				isMoveNOk *= isListNOk
-		elif coup == "S":
-			for i in range(0,4):
-				isListNOk,self.tab[:,i] = self.preCompresser(self.tab[:,i], True)
-				isMoveNOk *= isListNOk
-		else:
-			print "Coup inconu"
-
-		return isMoveNOk
-
-	def InverseListe(self, liste):
-		"""Fonction qui inverse l'ordre des valeurs d'une liste donnée en paramètre"""
-		i,j = liste[0],liste[1]
-		liste[0] = liste[3]
-		liste[1] = liste[2]
-		liste[2] = j
-		liste[3] = i
-
-		return liste
-
-	def jouer(self):
-		"""Main de notre jeu"""
-		print "\n\nBonjour et bienvenue dans ce merveilleux programme du 2048 ! "
-		self.initGrille()
-		print self.AfficherGrille()
-		saisi = raw_input("Jouer un coup N/S/E/W (q pour quitter): ")
-		while saisi.lower() != 'q' and not self.a2048():
-			CoupNOK = self.jouerCoup(saisi.upper())
-			if CoupNOK:
-				print "Coup Impossible!!!"
-			else:
-				self.ajoutAlea(1)
-			print self.AfficherGrille()
-			saisi = raw_input("Jouer un coup N/S/E/W (q pour quitter): ")
-			print "saisi : " + saisi
-		print "Au revoir"
-
-	def a1024(self):
-		"""Fonction permettant de savoir si la grille à un tuile 1024"""
-		boolean = False
+	def getPositionTileAvaible(self):
+		"""give a list of empty tile"""
+		list_res = []
 		for i in range(0,4):
 			for j in range(0,4):
-				if self.tab[i][j] == " 1024 ":
-					boolean = True
-
-		return boolean
-
-	def a2048(self):
-		"""Fonction permettant de savoir si la grille à un tuile 2048"""
-		boolean = False
-		for i in range(0,4):
-			for j in range(0,4):
-				if self.tab[i][j] == " 2048 ":
-					boolean = True
-
-		return boolean
-
-
-	def a4096(self):
-		"""Fonction permettant de savoir si la grille à un tuile 4096"""
-		boolean = False
-		for i in range(0,4):
-			for j in range(0,4):
-				if self.tab[i][j] == " 4096 ":
-					boolean = True
-
-		return boolean
-
-	def a8192(self):
-		"""Fonction permettant de savoir si la grille à un tuile 8192"""
-		boolean = False
-		for i in range(0,4):
-			for j in range(0,4):
-				if self.tab[i][j] == " 8192 ":
-					boolean = True
-
-		return boolean
-
-	def gameOver(self):
-		"""Fonction qui permet de savoir si le jeu est terminé : le joueur ne peux plus jouer de coup"""
-		boolean = True
-		grilleTemp = Grille()
-		if self.a2048():
-			return True
-		else:
-			return not self.asMove()
-
-
-	def positionsAvaibleNewTitle(self):
-		"""Permet de donner la liste des case vide de la grille"""
-		list_res = list()
-		for i in range(0,4):
-			for j in range(0,4):
-				if self.tab[i][j] == "      ":
+				if self.board[i][j] == 0:
 					list_res.append([i,j])
 
 		return list_res
+	
+	def AddRandomTile(self, mode):
+		"""add a tile in a random position"""
+		if mode == 0 :
+			val = 2
+		else :
+			val = random.choice([2,2,2,2,2,2,2,2,2,4])
+		
+		position = random.choice(self.getPositionTileAvaible())
 
-	def asMove(self):
-		"""Permet de donner les coup autorisaer """
-		boolean = True
-		grilleTemp = Grille()
-		listeCoup = ["N","S","E","W"]
-		for coup in listeCoup:
-			grilleTemp.tab = self.tab.copy()
-			boolean *= grilleTemp.jouerCoup(coup)
-		return not boolean
+		self.board[position[0]][position[1]] = val
+
+	def compressList(self, list_values):
+		"""Fonction that compress a list_values at left """
+		bool_not_compress = [True, True, True, True]
+		i = 1
+		while i < 4:
+			if i != 0 and list_values[i] != 0:
+				if list_values[i-1] == 0:
+					list_values[i-1] = list_values[i]
+					list_values[i] = 0
+					i = i - 1 
+				elif list_values[i-1] == list_values[i] and bool_not_compress[i-1]:
+					res = list_values[i] + list_values[i-1]
+					self.score += res
+					list_values[i-1] = res
+					list_values[i] = 0
+					bool_not_compress[i-1] = False
+					i += 1
+				else:
+					i += 1
+			else:
+				i += 1
+		
+		return list_values
+	
+	def invertListValues(self, list_values):
+		"""Fonction qui inverse l'ordre des valeurs d'une liste donnée en paramètre"""
+		return list_values[::-1]
+
+	def preCompression(self, list_values, bool_reverse):
+		"""define the order of compression """
+		is_list_change = True
+		list_values_temp = list_values.copy()
+
+		if bool_reverse :
+			self.invertListValues(self.compressList(self.invertListValues(list_values)))
+		else :
+			self.compressList(list_values)
+
+		#look if list_values change ==> No change equal not possible to play this move
+		for elt in (list_values_temp==list_values) :
+			is_list_change *= elt
+			
+		return is_list_change, list_values
+
+	def getActionPossible(self, action):
+		""" find action possible with actual board"""
+
+		game_temp = Game2048()
+		liste_action = ["N","S","E","W"]
+		action_possible = []
+
+		for a in liste_action:
+			game_temp.board = np.copy(self.board)
+			_, _, _, is_move_nOk = game_temp.playAction(a, check_end=False)
+			if not is_move_nOk :
+				action_possible.append(a)
+
+		return action_possible
+
+	def playAction(self, action, check_end=True):
+		"""play a mouvment pass in parameters"""
+		is_move_nOk = True
+		old_score = self.score
+		old_board = np.copy(self.board)
+		
+		if action == "W" :
+			for i in range(0,4):
+				is_list_change, self.board[i] = self.preCompression(self.board[i], False)
+				is_move_nOk *= is_list_change
+		elif action == "E":
+			for i in range(0,4):
+				is_list_change, self.board[i] = self.preCompression(self.board[i], True)
+				is_move_nOk *= is_list_change
+		elif action == "N":
+			for i in range(0,4):
+				is_list_change, self.board[:,i] = self.preCompression(self.board[:,i], False) 
+				is_move_nOk *= is_list_change
+		elif action == "S":
+			for i in range(0,4):
+				is_list_change, self.board[:,i] = self.preCompression(self.board[:,i], True)
+				is_move_nOk *= is_list_change
+		else:
+			print("Coup inconu")
+
+		is_game_over = False
+		if check_end :
+			# the game is over if none action are possible
+			is_game_over = len(self.getActionPossible(action)) == 0
+	
+		if is_move_nOk :
+			reward = -2
+		else :
+			reward = self.score - old_score
+			#reward = np.sum(self.board == 0) - np.sum(old_board == 0)
+			#reward = self.score
+		
+		return self.board, reward, is_game_over, is_move_nOk
+
+
+
+	def play(self):
+		"""Main de notre jeu"""
+		print("\n\Welcome in this wonderfull 2048 game ! ")
+		
+		is_game_over = False
+
+		print(self.plotBoard())
+		input_key = input("play a move : N/S/E/W (q for exit the game): ")
+		
+		while input_key.lower() != 'q' and not is_game_over :
+			board, reward, is_game_over, is_move_nOk = self.playAction(input_key.upper())
+			if is_move_nOk :
+				print("impossible to do this mouvement")
+			else:
+				self.AddRandomTile(1)
+
+			print(self.plotBoard())
+			print("is_game_over : ", is_game_over)
+			print("reward : ", reward)
+			if not is_game_over :
+				input_key = input("play a move : N/S/E/W (q for exit the game): ")
+		
+		print("See you soon !")
+
 
 	def val(self,x,y):
-		if self.tab[x][y] =="      ":
-			return 0
-		else:
-			return int(self.tab[x][y])
+		return self.tab[x][y]
 
-"""grille = Grille()
-grille.initGrille()
-grille.jouer()"""
+	def copy(self):
+		new_game = Game2048()
+		new_game.board = np.copy(self.board)
+		new_game.score = self.score
+
+		return new_game
+
+#g = Game2048()
+#g.play()
 
